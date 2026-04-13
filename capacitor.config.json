@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.app",
+  "appName": "Test",
+  "webDir": "build",
+  "npmClient": "npm"
+}
