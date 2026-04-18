@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { BookOpen, Users } from 'lucide-react';
+import { ArrowLeft, BookOpen, Users } from 'lucide-react';
 import type { Student } from '../App';
 
 interface RegistrationProps {
   onComplete: (student: Student) => void;
+  onBack: () => void;
 }
 
-export function Registration({ onComplete }: RegistrationProps) {
+export function Registration({ onComplete, onBack }: RegistrationProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,13 +57,22 @@ export function Registration({ onComplete }: RegistrationProps) {
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        <button
+          type="button"
+          onClick={onBack}
+          className="mb-6 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-lg transition-all hover:bg-gray-50"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </button>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
             <BookOpen className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Summer Camp Examination Portal</h1>
-          <p className="text-lg text-gray-600">Register to begin your online examination</p>
+          <p className="text-lg text-gray-600">Register for Event Story and begin your online examination</p>
         </div>
 
         {/* Category Info Cards */}
