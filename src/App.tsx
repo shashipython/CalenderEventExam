@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Bell, BookOpen, CalendarHeart, ChevronRight, School } from 'lucide-react';
+import { Bell, BookOpen, CalendarHeart, ChevronRight, LogIn, LogOut, School, UserPlus, X } from 'lucide-react';
+import { Toaster } from 'sonner';
 import { Registration } from './components/Registration';
 import { ExamInterface } from './components/ExamInterface';
 import { Results } from './components/Results';
 import { Certificate } from './components/Certificate';
+import { LoginForm } from './components/LoginForm';
+import { SignUpForm } from './components/SignUpForm';
 
 export interface Student {
   id: string;
@@ -26,7 +29,241 @@ export interface ExamResult {
 }
 
 type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate';
+type AuthMode = 'login' | 'signup' | null;
 
+interface AuthUser {
+  name: string;
+  email: string;
+}
+
+interface AuthControlsProps {
+  user: AuthUser | null;
+  mode: AuthMode;
+  onOpenLogin: () => void;
+  onOpenSignUp: () => void;
+  onClose: () => void;
+  onLogout: () => void;
+  onLoginSuccess: (user: AuthUser) => void;
+  onSignupSuccess: () => void;
+}
+
+function AuthNavBar({
+  user,
+  mode,
+  onOpenLogin,
+  onOpenSignUp,
+  onClose,
+  onLogout,
+  onLoginSuccess,
+  onSignupSuccess,
+}: AuthControlsProps) {
+  return (
+    <>
+      <nav
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          borderBottom: '1px solid #dbeafe',
+          background: 'rgb(255 255 255 / 0.92)',
+          backdropFilter: 'blur(14px)',
+          boxShadow: '0 10px 20px -18px rgb(15 23 42 / 0.55)',
+        }}
+      >
+        <div
+          className="mx-auto flex items-center justify-between gap-4 px-4"
+          style={{
+            minHeight: 72,
+            maxWidth: 1120,
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+              <School className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-blue-900">Bright Future School</p>
+              <p className="text-sm text-gray-600">Event Story Portal</p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              flexWrap: 'wrap',
+              justifyContent: 'flex-end',
+            }}
+          >
+            {user ? (
+              <>
+                <div
+                  style={{
+                    maxWidth: 220,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    borderRadius: 999,
+                    background: 'white',
+                    border: '1px solid #bfdbfe',
+                    padding: '10px 14px',
+                    color: '#1f2937',
+                    fontWeight: 600,
+                  }}
+                  title={user.email}
+                >
+                  {user.name}
+                </div>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    borderRadius: 10,
+                    background: '#dc2626',
+                    color: 'white',
+                    padding: '10px 14px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onOpenSignUp}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    borderRadius: 10,
+                    background: '#16a34a',
+                    color: 'white',
+                    padding: '10px 14px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Sign Up
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpenLogin}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    borderRadius: 10,
+                    background: '#2563eb',
+                    color: 'white',
+                    padding: '10px 14px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {mode && !user && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            overflowY: 'auto',
+            background: 'rgb(15 23 42 / 0.45)',
+            padding: '96px 16px 32px',
+          }}
+          onMouseDown={onClose}
+        >
+          <div
+            className="bg-white shadow-2xl"
+            style={{
+              width: 'min(100%, 720px)',
+              borderRadius: 16,
+              padding: 24,
+            }}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div className="inline-flex gap-2">
+                <button
+                  type="button"
+                  onClick={onOpenSignUp}
+                  style={{
+                    borderRadius: 10,
+                    background: mode === 'signup' ? '#16a34a' : '#f3f4f6',
+                    color: mode === 'signup' ? 'white' : '#374151',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  Sign Up
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpenLogin}
+                  style={{
+                    borderRadius: 10,
+                    background: mode === 'login' ? '#2563eb' : '#f3f4f6',
+                    color: mode === 'login' ? 'white' : '#374151',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  Login
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close auth form"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 36,
+                  height: 36,
+                  borderRadius: 999,
+                  background: '#f3f4f6',
+                  color: '#374151',
+                  cursor: 'pointer',
+                }}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {mode === 'signup' ? (
+              <SignUpForm onSuccess={onSignupSuccess} />
+            ) : (
+              <LoginForm onSuccess={onLoginSuccess} />
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 interface LandingPageProps {
   onOpenRegistration: () => void;
 }
@@ -110,6 +347,8 @@ export default function App() {
   const [appState, setAppState] = useState<AppState>('home');
   const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
+  const [authMode, setAuthMode] = useState<AuthMode>(null);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   const handleRegistrationComplete = (student: Student) => {
     setCurrentStudent(student);
@@ -131,8 +370,34 @@ export default function App() {
     setAppState('home');
   };
 
+  const handleSignupSuccess = () => {
+    setAuthMode('login');
+  };
+
+  const handleLoginSuccess = (user: AuthUser) => {
+    setAuthUser(user);
+    setAuthMode(null);
+  };
+
+  const handleLogout = () => {
+    setAuthUser(null);
+    setAuthMode(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Toaster richColors position="top-center" />
+      <AuthNavBar
+        user={authUser}
+        mode={authMode}
+        onOpenLogin={() => setAuthMode('login')}
+        onOpenSignUp={() => setAuthMode('signup')}
+        onClose={() => setAuthMode(null)}
+        onLogout={handleLogout}
+        onLoginSuccess={handleLoginSuccess}
+        onSignupSuccess={handleSignupSuccess}
+      />
+
       {appState === 'home' && (
         <LandingPage onOpenRegistration={() => setAppState('registration')} />
       )}
