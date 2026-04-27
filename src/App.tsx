@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, BookOpen, CalendarHeart, ChevronRight, LogIn, LogOut, School, UserPlus, X } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { Registration } from './components/Registration';
@@ -16,6 +16,7 @@ export interface Student {
   category: 'primary' | 'highschool';
   schoolName: string;
   grade: string;
+  eventId: string;
 }
 
 export interface ExamResult {
@@ -32,9 +33,12 @@ type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate';
 type AuthMode = 'login' | 'signup' | null;
 
 interface AuthUser {
+  id: string;
   name: string;
   email: string;
 }
+
+const AUTH_USER_STORAGE_KEY = 'event-story-auth-user';
 
 interface AuthControlsProps {
   user: AuthUser | null;
@@ -113,7 +117,7 @@ function AuthNavBar({
                   }}
                   title={user.email}
                 >
-                  {user.name}
+                  Welcome, {user.name}
                 </div>
                 <button
                   type="button"
@@ -202,37 +206,7 @@ function AuthNavBar({
             }}
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div className="inline-flex gap-2">
-                <button
-                  type="button"
-                  onClick={onOpenSignUp}
-                  style={{
-                    borderRadius: 10,
-                    background: mode === 'signup' ? '#16a34a' : '#f3f4f6',
-                    color: mode === 'signup' ? 'white' : '#374151',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                  }}
-                >
-                  Sign Up
-                </button>
-                <button
-                  type="button"
-                  onClick={onOpenLogin}
-                  style={{
-                    borderRadius: 10,
-                    background: mode === 'login' ? '#2563eb' : '#f3f4f6',
-                    color: mode === 'login' ? 'white' : '#374151',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                  }}
-                >
-                  Login
-                </button>
-              </div>
+            <div className="mb-4 flex items-center justify-end">
               <button
                 type="button"
                 onClick={onClose}
@@ -266,9 +240,10 @@ function AuthNavBar({
 }
 interface LandingPageProps {
   onOpenRegistration: () => void;
+  user: AuthUser | null;
 }
 
-function LandingPage({ onOpenRegistration }: LandingPageProps) {
+function LandingPage({ onOpenRegistration, user }: LandingPageProps) {
   return (
     <div className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-5xl">
@@ -276,6 +251,11 @@ function LandingPage({ onOpenRegistration }: LandingPageProps) {
           <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
             <School className="h-8 w-8" />
           </div>
+          {user && (
+            <p className="mb-3 text-base font-semibold text-emerald-100">
+              Welcome, {user.name}
+            </p>
+          )}
           <p className="mb-3 text-sm font-semibold">WELCOME TO THE SCHOOL PORTAL</p>
           <h1 className="mb-4 text-4xl font-bold">Bright Future School Main Landing Page</h1>
           <p className="max-w-4xl text-lg leading-relaxed text-blue-50">
@@ -348,7 +328,37 @@ export default function App() {
   const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode>(null);
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const storedUser = window.localStorage.getItem(AUTH_USER_STORAGE_KEY);
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUser) as AuthUser;
+    } catch {
+      window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (authUser) {
+      window.localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(authUser));
+      return;
+    }
+
+    window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+  }, [authUser]);
 
   const handleRegistrationComplete = (student: Student) => {
     setCurrentStudent(student);
@@ -399,19 +409,25 @@ export default function App() {
       />
 
       {appState === 'home' && (
-        <LandingPage onOpenRegistration={() => setAppState('registration')} />
+        <LandingPage
+          onOpenRegistration={() => setAppState('registration')}
+          user={authUser}
+        />
       )}
 
       {appState === 'registration' && (
         <Registration
           onComplete={handleRegistrationComplete}
           onBack={() => setAppState('home')}
+          user={authUser}
         />
       )}
       
       {appState === 'exam' && currentStudent && (
         <ExamInterface 
-          student={currentStudent} 
+          student={currentStudent}
+          eventId={currentStudent.eventId}
+          grade={currentStudent.grade}
           onComplete={handleExamComplete} 
         />
       )}

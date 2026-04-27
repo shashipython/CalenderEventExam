@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { toast } from "sonner";
 
 interface SignUpFormData {
@@ -12,6 +11,7 @@ interface SignUpFormData {
   email: string;
   password: string;
   confirmPassword: string;
+  mobile: string;
   grade: number | null;
 }
 
@@ -24,12 +24,11 @@ const initialFormData: SignUpFormData = {
   email: "",
   password: "",
   confirmPassword: "",
+  mobile: "",
   grade: null,
 };
 
-const SIGNUP_API_URL = import.meta.env.DEV
-  ? "/api/event_signup"
-  : "https://5boz4vmp1k.execute-api.us-east-1.amazonaws.com/default/event_signup";
+const SIGNUP_API_URL = '/api/event_signup';
 
 export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
   const [formData, setFormData] = useState<SignUpFormData>(initialFormData);
@@ -69,6 +68,15 @@ export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
       return "Password and confirmation password must match";
     }
 
+    if (!formData.mobile.trim()) {
+      return "Mobile number is required";
+    }
+
+    const mobilePattern = /^\d{10}$/;
+    if (!mobilePattern.test(formData.mobile.trim())) {
+      return "Mobile number must be 10 digits";
+    }
+
     if (!formData.grade) {
       return "Grade is required";
     }
@@ -91,8 +99,9 @@ export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        grade: formData.grade,
-        role: "public",
+        grade: formData.grade.toString(),
+        role: "parent",
+        mobile: formData.mobile.trim(),
       };
 
       const response = await fetch(
@@ -108,13 +117,21 @@ export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
 
       const result = await response.json().catch(() => null);
 
-      if (!response.ok) {
+      const isSuccess =
+        response.ok &&
+        !(
+          result?.success === false ||
+          result?.status === "error" ||
+          result?.status === "failed"
+        );
+
+      if (!isSuccess) {
         const errorMessage =
           result?.message || result?.error || `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      toast.success("Signup completed successfully!");
+      toast.success(result?.message || "Signup successfully completed!");
       resetForm();
 
       if (onSuccess) {
@@ -137,7 +154,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
       <CardHeader className="space-y-2 px-0">
         <CardTitle className="text-2xl">Create Account</CardTitle>
         <CardDescription>
-          Sign up a public user with name, email, password, and grade
+          Sign up a parent account with name, email, password, mobile number, and grade
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 px-0">
@@ -199,28 +216,47 @@ export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
         </div>
 
         <div className="space-y-3">
+          <Label htmlFor="signup-mobile" className="text-base">Mobile *</Label>
+          <Input
+            id="signup-mobile"
+            type="tel"
+            inputMode="numeric"
+            placeholder="Enter 10-digit mobile number"
+            className="h-12 text-base"
+            value={formData.mobile}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                mobile: e.target.value.replace(/\D/g, "").slice(0, 10),
+              }))
+            }
+          />
+        </div>
+
+        <div className="space-y-3">
           <Label htmlFor="signup-grade" className="text-base">Grade *</Label>
-          <Select
-            value={formData.grade ? formData.grade.toString() : undefined}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, grade: parseInt(value, 10) }))
+          <select
+            id="signup-grade"
+            className="flex h-12 w-full rounded-md border border-input bg-input-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            value={formData.grade ? formData.grade.toString() : ""}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                grade: e.target.value ? parseInt(e.target.value, 10) : null,
+              }))
             }
           >
-            <SelectTrigger id="signup-grade" className="h-12 text-base">
-              <SelectValue placeholder="Select grade" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 9 }, (_, i) => i + 2).map((grade) => (
-                <SelectItem key={grade} value={grade.toString()}>
-                  Class {grade}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <option value="">Select grade</option>
+            {Array.from({ length: 9 }, (_, i) => i + 2).map((grade) => (
+              <option key={grade} value={grade.toString()}>
+                Class {grade}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="rounded-lg border bg-gray-50 p-4 text-base text-gray-600">
-          Role will be submitted as <span className="font-medium">public</span>.
+          Role will be submitted as <span className="font-medium">parent</span>.
         </div>
 
         <div className="flex justify-end gap-4">

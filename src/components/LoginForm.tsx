@@ -12,7 +12,7 @@ interface LoginFormData {
 }
 
 interface LoginFormProps {
-  onSuccess?: (user: { name: string; email: string }) => void;
+  onSuccess?: (user: { id: string; name: string; email: string }) => void;
 }
 
 const initialFormData: LoginFormData = {
@@ -20,9 +20,7 @@ const initialFormData: LoginFormData = {
   password: "",
 };
 
-const LOGIN_API_URL = import.meta.env.DEV
-  ? "/api/event_login"
-  : "https://irpd4g3k43.execute-api.us-east-1.amazonaws.com/default/event_login";
+const LOGIN_API_URL = '/api/event_login';
 
 export function LoginForm({ onSuccess }: LoginFormProps = {}) {
   const [formData, setFormData] = useState<LoginFormData>(initialFormData);
@@ -75,28 +73,66 @@ export function LoginForm({ onSuccess }: LoginFormProps = {}) {
 
       const result = await response.json().catch(() => null);
 
-      if (!response.ok) {
+      const isSuccess =
+        response.ok &&
+        !(
+          result?.success === false ||
+          result?.status === "error" ||
+          result?.status === "failed"
+        );
+
+      if (!isSuccess) {
         const errorMessage =
           result?.message || result?.error || `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      toast.success("Login completed successfully!");
+      toast.success(result?.message || "Login completed successfully!");
       resetForm();
+
+      // Debug: Log the full API response to see what fields are returned
+      console.log("Login API response:", result);
+
+      // Extract user ID from various possible response structures
+      const userId = 
+        result?.id ??
+        result?.user_id ??
+        result?.userId ??
+        result?.user?.id ??
+        result?.user?.user_id ??
+        result?.user?.userId ??
+        result?.data?.id ??
+        result?.data?.user_id ??
+        result?.data?.userId ??
+        result?.data?.user_id;
+
+      // Extract user name from various possible response structures
+      const userName = 
+        result?.name ??
+        result?.user?.name ??
+        result?.data?.name ??
+        result?.fullName ??
+        result?.userName ??
+        result?.username ??
+        formData.email.trim().split("@")[0];
+
+      // Extract email from various possible response structures
+      const userEmail = 
+        result?.email ??
+        result?.user?.email ??
+        result?.data?.email ??
+        formData.email.trim();
+
+      if (!userId) {
+        console.error("Login response missing user_id:", result);
+        throw new Error("Login failed: No user ID returned from server");
+      }
 
       if (onSuccess) {
         onSuccess({
-          name:
-            result?.name ||
-            result?.user?.name ||
-            result?.data?.name ||
-            result?.username ||
-            formData.email.trim().split("@")[0],
-          email:
-            result?.email ||
-            result?.user?.email ||
-            result?.data?.email ||
-            formData.email.trim(),
+          id: String(userId),
+          name: userName,
+          email: userEmail,
         });
       }
     } catch (error) {

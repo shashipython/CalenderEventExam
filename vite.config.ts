@@ -56,5 +56,32 @@
     server: {
       port: 3000,
       open: true,
+      proxy: {
+        '/api/event_signup': {
+          target: 'https://5boz4vmp1k.execute-api.us-east-1.amazonaws.com',
+          changeOrigin: true,
+          rewrite: () => '/default/event_signup',
+        },
+        '/api/event_login': {
+          target: 'https://irpd4g3k43.execute-api.us-east-1.amazonaws.com',
+          changeOrigin: true,
+          rewrite: () => '/default/event_login',
+        },
+        '/api/event_get_event_title': {
+          target: 'https://2fqnxdrrzj.execute-api.us-east-1.amazonaws.com',
+          changeOrigin: true,
+          rewrite: () => '/default/event_get_event_title',
+        },
+        '/api/event_get_students': {
+          target: 'https://k0tbcg22d1.execute-api.us-east-1.amazonaws.com',
+          changeOrigin: true,
+          rewrite: () => '/default/event_get_students',
+        },
+        '/api/event_get_story_quations': {
+          target: 'https://sq4fgnu8q9.execute-api.us-east-1.amazonaws.com',
+          changeOrigin: true,
+          rewrite: () => '/default/event_get_story_quations',
+        },
+      },
     },
   });
