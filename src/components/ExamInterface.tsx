@@ -232,16 +232,47 @@ export function ExamInterface({ student, eventId, grade, onComplete }: ExamInter
       }
     });
 
+    const totalMarks = allQuestions.length;
+    const percentage = allQuestions.length > 0 ? (score / allQuestions.length) * 100 : 0;
+
     const result: ExamResult = {
       studentId: student.id,
       category: student.category,
       score,
       totalQuestions: allQuestions.length,
-      percentage: (score / allQuestions.length) * 100,
+      percentage,
       answers,
       completedAt: new Date().toISOString(),
     };
 
+    // Submit exam results to API
+    const submitToAPI = async () => {
+      try {
+        const response = await fetch('https://ezrib3bxac.execute-api.us-east-1.amazonaws.com/default/event_insert_result', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: student.id,
+            event_id: Number(eventId),
+            score: score,
+            total_marks: totalMarks,
+            percentage: percentage,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to submit exam results to API');
+        } else {
+          console.log('Exam results submitted successfully');
+        }
+      } catch (error) {
+        console.error('Error submitting exam results:', error);
+      }
+    };
+
+    submitToAPI();
     onComplete(result);
   };
 

@@ -215,6 +215,7 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
     eventDate: formatDateForInput(new Date()),
     eventId: '',
     grade: '',
+    studentId: '',
   });
   const [eventOptions, setEventOptions] = useState<EventOption[]>([]);
   const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
@@ -372,7 +373,7 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
 
     if (validateForm()) {
       const student: Student = {
-        id: `STU${Date.now()}`,
+        id: formData.studentId || `STU${Date.now()}`,
         name: formData.name,
         email: formData.email,
         age: parseInt(formData.age, 10),
@@ -441,7 +442,14 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
                 </label>
                 <select
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    const selectedStudent = studentOptions.find(s => s.name === e.target.value);
+                    setFormData({ 
+                      ...formData, 
+                      name: e.target.value,
+                      studentId: selectedStudent?.id || ''
+                    });
+                  }}
                   disabled={isLoadingStudents}
                   className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
                 >
