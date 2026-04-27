@@ -286,11 +286,23 @@ interface ProfileModalProps {
 }
 
 function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
+  const [activeTab, setActiveTab] = useState<'details' | 'students'>('details');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Student form state
+  const [studentForm, setStudentForm] = useState({
+    first_name: '',
+    last_name: '',
+    dob: '',
+    gender: '',
+    grade: '',
+  });
+  const [studentError, setStudentError] = useState<string | null>(null);
+  const [studentSuccess, setStudentSuccess] = useState<string | null>(null);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -424,6 +436,40 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
           </button>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-200 mb-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('details')}
+            style={{
+              padding: '12px 20px',
+              borderBottom: activeTab === 'details' ? '2px solid #2563eb' : '2px solid transparent',
+              color: activeTab === 'details' ? '#2563eb' : '#6b7280',
+              fontWeight: activeTab === 'details' ? 600 : 400,
+              background: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Parent Details
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('students')}
+            style={{
+              padding: '12px 20px',
+              borderBottom: activeTab === 'students' ? '2px solid #2563eb' : '2px solid transparent',
+              color: activeTab === 'students' ? '#2563eb' : '#6b7280',
+              fontWeight: activeTab === 'students' ? 600 : 400,
+              background: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Add Student
+          </button>
+        </div>
+
+        {activeTab === 'details' && (
+          <>
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
             <p className="text-sm text-red-600">{error}</p>
@@ -502,6 +548,248 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
                 }}
               >
                 {saving ? 'Updating...' : 'Update'}
+              </button>
+            </div>
+          </div>
+        )}
+          </>
+        )}
+
+        {/* Students Tab */}
+        {activeTab === 'students' && (
+          <div className="space-y-4">
+            {studentError && (
+              <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm text-red-600">{studentError}</p>
+              </div>
+            )}
+
+            {studentSuccess && (
+              <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200">
+                <p className="text-sm text-green-600">{studentSuccess}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={studentForm.first_name}
+                  onChange={(e) => {
+                    setStudentForm({ ...studentForm, first_name: e.target.value });
+                    setStudentError(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    fontSize: 14,
+                  }}
+                  placeholder="Enter first name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={studentForm.last_name}
+                  onChange={(e) => {
+                    setStudentForm({ ...studentForm, last_name: e.target.value });
+                    setStudentError(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    fontSize: 14,
+                  }}
+                  placeholder="Enter last name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date of Birth *
+                </label>
+                <input
+                  type="date"
+                  value={studentForm.dob}
+                  onChange={(e) => {
+                    setStudentForm({ ...studentForm, dob: e.target.value });
+                    setStudentError(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender *
+                </label>
+                <select
+                  value={studentForm.gender}
+                  onChange={(e) => {
+                    setStudentForm({ ...studentForm, gender: e.target.value });
+                    setStudentError(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    fontSize: 14,
+                    backgroundColor: 'white',
+                  }}
+                >
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Grade *
+                </label>
+                <input
+                  type="number"
+                  value={studentForm.grade}
+                  onChange={(e) => {
+                    setStudentForm({ ...studentForm, grade: e.target.value });
+                    setStudentError(null);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    fontSize: 14,
+                  }}
+                  placeholder="Enter grade (1-12)"
+                  min="1"
+                  max="12"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setStudentForm({
+                    first_name: '',
+                    last_name: '',
+                    dob: '',
+                    gender: '',
+                    grade: '',
+                  });
+                  setStudentError(null);
+                  setStudentSuccess(null);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  borderRadius: 10,
+                  border: '1px solid #d1d5db',
+                  background: 'white',
+                  color: '#374151',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  // Validation
+                  if (!studentForm.first_name.trim()) {
+                    setStudentError('First name is required');
+                    return;
+                  }
+                  if (!studentForm.last_name.trim()) {
+                    setStudentError('Last name is required');
+                    return;
+                  }
+                  if (!studentForm.dob) {
+                    setStudentError('Date of birth is required');
+                    return;
+                  }
+                  if (!studentForm.gender) {
+                    setStudentError('Gender is required');
+                    return;
+                  }
+                  if (!studentForm.grade) {
+                    setStudentError('Grade is required');
+                    return;
+                  }
+
+                  setSaving(true);
+                  setStudentError(null);
+                  setStudentSuccess(null);
+
+                  try {
+                    const response = await fetch('https://hl5klpfv63.execute-api.us-east-1.amazonaws.com/default/event_student_insert', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        first_name: studentForm.first_name,
+                        last_name: studentForm.last_name,
+                        dob: studentForm.dob,
+                        gender: studentForm.gender,
+                        grade: parseInt(studentForm.grade),
+                        user_id: parseInt(userId),
+                      }),
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                      setStudentSuccess('Student added successfully!');
+                      setStudentForm({
+                        first_name: '',
+                        last_name: '',
+                        dob: '',
+                        gender: '',
+                        grade: '',
+                      });
+                    } else {
+                      setStudentError(data.message || 'Failed to add student');
+                    }
+                  } catch (err) {
+                    setStudentError('Failed to add student');
+                    console.error('Error adding student:', err);
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  borderRadius: 10,
+                  border: 'none',
+                  background: '#2563eb',
+                  color: 'white',
+                  fontWeight: 600,
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  opacity: saving ? 0.7 : 1,
+                }}
+              >
+                {saving ? 'Submitting...' : 'Submit'}
               </button>
             </div>
           </div>
