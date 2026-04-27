@@ -5,6 +5,7 @@ export function StudentRegistration() {
   const [formData, setFormData] = useState({
     studentName: '',
     dateOfBirth: '',
+    age: '',
     grade: '',
     parentName: '',
     email: '',
@@ -13,8 +14,23 @@ export function StudentRegistration() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const calculateAge = (dob: string): string => {
+    if (!dob) return '';
+    const birthYear = parseInt(dob.split('-')[0], 10);
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - birthYear;
+    return age.toString();
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'dateOfBirth') {
+        updated.age = calculateAge(value);
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,6 +53,7 @@ export function StudentRegistration() {
       setFormData({
         studentName: '',
         dateOfBirth: '',
+        age: '',
         grade: '',
         parentName: '',
         email: '',
@@ -89,7 +106,7 @@ export function StudentRegistration() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block text-gray-700 text-sm mb-1">
                 <div className="flex items-center gap-2">
@@ -104,6 +121,19 @@ export function StudentRegistration() {
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 text-sm mb-1">Age *</label>
+              <input
+                type="text"
+                name="age"
+                value={formData.age}
+                readOnly
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Auto-calculated"
               />
             </div>
 

@@ -17,6 +17,9 @@ interface EventOption {
 interface StudentOption {
   id: string;
   name: string;
+  age?: number;
+  gender?: string;
+  grade?: string;
 }
 
 const EVENT_TITLES_API_URL = '/api/event_get_event_title';
@@ -169,9 +172,30 @@ const extractStudentOptions = (payload: unknown): StudentOption[] => {
       candidate.studentId ??
       candidate.user_id;
 
+    const rawAge =
+      candidate.age ??
+      candidate.student_age ??
+      candidate.studentAge;
+    const rawGender =
+      candidate.gender ??
+      candidate.student_gender ??
+      candidate.studentGender;
+    const rawGrade =
+      candidate.grade ??
+      candidate.student_grade ??
+      candidate.studentGrade ??
+      candidate.class;
+
+    let age: number | undefined;
+    if (typeof rawAge === 'number') age = rawAge;
+    else if (typeof rawAge === 'string') age = parseInt(rawAge, 10);
+
     return {
       id: String(rawId ?? `${index}-${rawName}`),
       name: rawName.trim(),
+      age: Number.isNaN(age) ? undefined : age,
+      gender: typeof rawGender === 'string' ? rawGender : undefined,
+      grade: rawGrade !== undefined ? String(rawGrade) : undefined,
     };
   };
 
@@ -205,11 +229,18 @@ const extractStudentOptions = (payload: unknown): StudentOption[] => {
   return walk(payload);
 };
 
+const getExaminationCategory = (grade: string): 'primary' | 'highschool' => {
+  const gradeNum = parseInt(grade, 10);
+  if (Number.isNaN(gradeNum)) return 'primary';
+  return gradeNum < 8 ? 'primary' : 'highschool';
+};
+
 export function Registration({ onComplete, onBack, user }: RegistrationProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: user?.email ?? '',
     age: '',
+    gender: '',
     category: '' as '' | 'primary' | 'highschool',
     schoolName: '',
     eventDate: formatDateForInput(new Date()),
@@ -380,6 +411,7 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
         category: formData.category,
         schoolName: formData.schoolName,
         grade: formData.grade,
+        gender: formData.gender,
         eventId: formData.eventId,
       };
 
@@ -444,10 +476,16 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
                   value={formData.name}
                   onChange={(e) => {
                     const selectedStudent = studentOptions.find(s => s.name === e.target.value);
+                    const grade = selectedStudent?.grade || '';
+                    const category = getExaminationCategory(grade);
                     setFormData({ 
                       ...formData, 
                       name: e.target.value,
-                      studentId: selectedStudent?.id || ''
+                      studentId: selectedStudent?.id || '',
+                      age: '',//selectedStudent?.age?.toString() || '',
+                      gender: selectedStudent?.gender || '',
+                      grade,
+                      category,
                     });
                   }}
                   disabled={isLoadingStudents}
@@ -488,30 +526,53 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
                   Age *
                 </label>
                 <input
-                  type="number"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your age"
-                  min="5"
-                  max="20"
-                />
+  type="number"
+  value={formData.age}
+  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+  placeholder="Enter Age"
+/>
                 {errors.age && <p className="mt-1 text-sm text-red-600">{errors.age}</p>}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Gender
+                </label>
+                <input
+                  type="text"
+                  value={formData.gender}
+                  readOnly
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-700 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  placeholder="Auto-filled from student record"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Grade/Class *
+                </label>
+                <input
+                  type="text"
+                  value={formData.grade}
+                  readOnly
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-700 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  placeholder="Auto-filled from student record"
+                />
+                {errors.grade && <p className="mt-1 text-sm text-red-600">{errors.grade}</p>}
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
                   Examination Category *
                 </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as 'primary' | 'highschool' })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select category</option>
-                  <option value="primary">Primary School</option>
-                  <option value="highschool">High School</option>
-                </select>
+                <input
+                  type="text"
+                  value={formData.category === 'primary' ? 'Primary School' : formData.category === 'highschool' ? 'High School' : ''}
+                  readOnly
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-gray-700 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  placeholder="Auto-filled from student record"
+                />
                 {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
               </div>
 
@@ -542,7 +603,7 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
                 {errors.eventDate && <p className="mt-1 text-sm text-red-600">{errors.eventDate}</p>}
               </div>
 
-              <div>
+              <div className="md:col-span-2">
                 <label className="mb-2 block text-sm font-medium text-gray-700">
                   Event *
                 </label>
@@ -566,25 +627,6 @@ export function Registration({ onComplete, onBack, user }: RegistrationProps) {
                   ))}
                 </select>
                 {errors.eventId && <p className="mt-1 text-sm text-red-600">{errors.eventId}</p>}
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Grade/Class *
-                </label>
-                <select
-                  value={formData.grade}
-                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select grade</option>
-                  {Array.from({ length: 9 }, (_, index) => index + 2).map((grade) => (
-                    <option key={grade} value={grade.toString()}>
-                      Grade {grade}
-                    </option>
-                  ))}
-                </select>
-                {errors.grade && <p className="mt-1 text-sm text-red-600">{errors.grade}</p>}
               </div>
             </div>
 

@@ -16,6 +16,7 @@ export interface Student {
   category: 'primary' | 'highschool';
   schoolName: string;
   grade: string;
+  gender?: string;
   eventId: string;
 }
 

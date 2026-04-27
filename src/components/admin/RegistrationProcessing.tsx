@@ -5,6 +5,7 @@ interface Registration {
   id: string;
   studentName: string;
   dateOfBirth: string;
+  age: string;
   grade: string;
   parentName: string;
   email: string;
@@ -153,7 +154,7 @@ export function RegistrationProcessing() {
                   </div>
                   <div>
                     <h3 className="text-gray-900">{reg.studentName}</h3>
-                    <p className="text-gray-600 text-sm">Grade {reg.grade}</p>
+                    <p className="text-gray-600 text-sm">Grade {reg.grade} {reg.age ? `· Age ${reg.age}` : ''}</p>
                     <p className="text-gray-500 text-xs mt-1">{reg.parentName}</p>
                   </div>
                 </div>
@@ -234,6 +235,10 @@ export function RegistrationProcessing() {
                 <div className="text-gray-900">
                   {new Date(selectedReg.dateOfBirth).toLocaleDateString()}
                 </div>
+              </div>
+              <div>
+                <div className="text-gray-600 text-sm mb-1">Age</div>
+                <div className="text-gray-900">{selectedReg.age ? `${selectedReg.age} years` : 'N/A'}</div>
               </div>
               <div>
                 <div className="text-gray-600 text-sm mb-1">Grade</div>
