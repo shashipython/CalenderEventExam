@@ -7,6 +7,7 @@ import { Results } from './components/Results';
 import { Certificate } from './components/Certificate';
 import { LoginForm } from './components/LoginForm';
 import { SignUpForm } from './components/SignUpForm';
+import { AlertNotification } from './components/AlertNotification';
 
 export interface Student {
   id: string;
@@ -30,7 +31,7 @@ export interface ExamResult {
   completedAt: string;
 }
 
-type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate';
+type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate' | 'notifications';
 type AuthMode = 'login' | 'signup' | null;
 
 interface AuthUser {
@@ -802,10 +803,11 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
 
 interface LandingPageProps {
   onOpenRegistration: () => void;
+  onOpenNotifications: () => void;
   user: AuthUser | null;
 }
 
-function LandingPage({ onOpenRegistration, user }: LandingPageProps) {
+function LandingPage({ onOpenRegistration, onOpenNotifications, user }: LandingPageProps) {
   return (
     <div className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-5xl">
@@ -826,7 +828,11 @@ function LandingPage({ onOpenRegistration, user }: LandingPageProps) {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-blue-200 bg-white p-8 shadow-xl">
+          <button
+            type="button"
+            onClick={onOpenNotifications}
+            className="rounded-2xl border border-blue-200 bg-white p-8 text-left shadow-xl transition-all hover:scale-[1.02] hover:border-blue-300"
+          >
             <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100">
               <Bell className="h-7 w-7 text-blue-600" />
             </div>
@@ -848,7 +854,7 @@ function LandingPage({ onOpenRegistration, user }: LandingPageProps) {
                 <p className="text-sm text-gray-600">Digital progress and attendance updates are available in the portal.</p>
               </div>
             </div>
-          </div>
+          </button>
 
           <button
             type="button"
@@ -983,6 +989,7 @@ export default function App() {
       {appState === 'home' && (
         <LandingPage
           onOpenRegistration={() => setAppState('registration')}
+          onOpenNotifications={() => setAppState('notifications')}
           user={authUser}
         />
       )}
@@ -1018,6 +1025,12 @@ export default function App() {
           student={currentStudent}
           result={examResult}
           onStartNew={handleStartNew}
+        />
+      )}
+      {appState === 'notifications' && authUser && (
+        <AlertNotification
+          onBack={() => setAppState('home')}
+          userId={authUser.id}
         />
       )}
     </div>
