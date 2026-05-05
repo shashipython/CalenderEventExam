@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
+import { API_CONFIG } from "../config/apiConfig";
 
 interface LoginFormData {
   email: string;
@@ -20,7 +21,7 @@ const initialFormData: LoginFormData = {
   password: "",
 };
 
-const LOGIN_API_URL = '/api/event_login';
+const LOGIN_API_URL = API_CONFIG.LOGIN_API_URL;
 
 export function LoginForm({ onSuccess }: LoginFormProps = {}) {
   const [formData, setFormData] = useState<LoginFormData>(initialFormData);

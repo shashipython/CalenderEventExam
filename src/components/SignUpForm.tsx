@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
+import { API_CONFIG } from "../config/apiConfig";
 
 interface SignUpFormData {
   name: string;
@@ -28,7 +29,7 @@ const initialFormData: SignUpFormData = {
   grade: null,
 };
 
-const SIGNUP_API_URL = '/api/event_signup';
+const SIGNUP_API_URL = API_CONFIG.SIGNUP_API_URL;
 
 export function SignUpForm({ onSuccess }: SignUpFormProps = {}) {
   const [formData, setFormData] = useState<SignUpFormData>(initialFormData);

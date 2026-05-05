@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_CONFIG } from '../config/apiConfig';
 import { Clock, BookOpen, CheckCircle, Volume2, VolumeX, Pause, Play, Loader2 } from 'lucide-react';
 import type { Student, ExamResult } from '../App';
 
@@ -26,7 +27,7 @@ interface ExamInterfaceProps {
   onComplete: (result: ExamResult) => void;
 }
 
-const QUESTIONS_API_URL = '/api/event_get_story_quations';
+const QUESTIONS_API_URL = API_CONFIG.STORY_QUESTIONS_API_URL;
 
 export function ExamInterface({ student, eventId, grade, onComplete }: ExamInterfaceProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -248,7 +249,7 @@ export function ExamInterface({ student, eventId, grade, onComplete }: ExamInter
     // Submit exam results to API
     const submitToAPI = async () => {
       try {
-        const response = await fetch('https://ezrib3bxac.execute-api.us-east-1.amazonaws.com/default/event_insert_result', {
+        const response = await fetch(API_CONFIG.INSERT_RESULT_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

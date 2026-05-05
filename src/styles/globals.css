@@ -3,7 +3,7 @@
 :root {
   --font-size: 16px;
   --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
+  --foreground: #111827;
   --card: #ffffff;
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -42,8 +42,8 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: #111827;
+  --foreground: #f9fafb;
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
@@ -187,3 +187,217 @@
 html {
   font-size: var(--font-size);
 }
+
+/* PDF-compatible styles - apply to html when certificate-pdf-mode active */
+.certificate-pdf-mode {
+  --tw-gradient-position: to right !important;
+}
+
+.certificate-pdf-mode :root {
+  /* Override root CSS vars */
+  --background: #ffffff !important;
+  --foreground: #111827 !important;
+  --ring: #3b82f6 !important;
+}
+
+.certificate-pdf-mode .certificate-pdf, 
+.certificate-pdf-mode .certificate-pdf * {
+  /* Override ALL Tailwind color vars with hex equivalents */
+  --background: #ffffff !important;
+  --foreground: #111827 !important;
+  --card: #ffffff !important;
+  --card-foreground: #111827 !important;
+  --popover: #ffffff !important;
+  --popover-foreground: #111827 !important;
+  --primary: #2563eb !important;
+  --primary-foreground: #ffffff !important;
+  --secondary: #e5e7eb !important;
+  --secondary-foreground: #111827 !important;
+  --muted: #f3f4f6 !important;
+  --muted-foreground: #6b7280 !important;
+  --accent: #f9fafb !important;
+  --accent-foreground: #111827 !important;
+  --destructive: #ef4444 !important;
+  --destructive-foreground: #ffffff !important;
+  --border: #e5e7eb !important;
+  --input: #ffffff !important;
+  --ring: #3b82f6 !important;
+  --chart-1: #3b82f6 !important;
+  --chart-2: #10b981 !important;
+  --chart-3: #f59e0b !important;
+  --chart-4: #8b5cf6 !important;
+  --chart-5: #ef4444 !important;
+  --sidebar: #ffffff !important;
+  --sidebar-foreground: #111827 !important;
+  --sidebar-primary: #2563eb !important;
+  --sidebar-primary-foreground: #ffffff !important;
+  --sidebar-accent: #f3f4f6 !important;
+  --sidebar-accent-foreground: #374151 !important;
+  --sidebar-border: #e5e7eb !important;
+  --sidebar-ring: #3b82f6 !important;
+
+  /* All Tailwind color vars - comprehensive override */
+  --color-red-50: #fef2f2 !important;
+  --color-red-100: #fee2e2 !important;
+  --color-red-500: #ef4444 !important;
+  --color-red-600: #dc2626 !important;
+  --color-red-700: #b91c1c !important;
+  --color-red-900: #7f1d1d !important;
+  --color-orange-500: #f97316 !important;
+  --color-yellow-50: #fffbeb !important;
+  --color-yellow-200: #fef3c7 !important;
+  --color-yellow-600: #eab308 !important;
+  --color-yellow-700: #ca8a04 !important;
+  --color-yellow-800: #a16207 !important;
+  --color-green-50: #f0fdf4 !important;
+  --color-green-100: #dcfce7 !important;
+  --color-green-200: #bbf7d0 !important;
+  --color-green-300: #86efac !important;
+  --color-green-500: #10b981 !important;
+  --color-green-600: #059669 !important;
+  --color-green-700: #047857 !important;
+  --color-green-800: #065f46 !important;
+  --color-green-900: #064e3b !important;
+  --color-emerald-500: #10b981 !important;
+  --color-emerald-600: #059669 !important;
+  --color-emerald-700: #047857 !important;
+  --color-blue-50: #eff6ff !important;
+  --color-blue-100: #dbeafe !important;
+  --color-blue-200: #bfdbfe !important;
+  --color-blue-500: #3b82f6 !important;
+  --color-blue-600: #2563eb !important;
+  --color-blue-700: #1d4ed8 !important;
+  --color-blue-900: #1e3a8a !important;
+  --color-purple-50: #faf5ff !important;
+  --color-purple-100: #f3e8ff !important;
+  --color-purple-200: #e9d5ff !important;
+  --color-purple-300: #ddd6fe !important;
+  --color-purple-500: #8b5cf6 !important;
+  --color-purple-600: #7c3aed !important;
+  --color-purple-700: #6d28d9 !important;
+  --color-purple-900: #581c87 !important;
+  --color-gray-50: #f9fafb !important;
+  --color-gray-100: #f3f4f6 !important;
+  --color-gray-200: #e5e7eb !important;
+  --color-gray-300: #d1d5db !important;
+  --color-gray-500: #6b7280 !important;
+  --color-gray-600: #4b5563 !important;
+  --color-gray-700: #374151 !important;
+  --color-gray-800: #1f2937 !important;
+  --color-gray-900: #111827 !important;
+  --color-white: #ffffff !important;
+  
+  /* Remove all CSS custom properties that reference oklch */
+  --ring: #3b82f6 !important;
+}
+
+.certificate-pdf {
+  /* Global reset for gradients using oklab */
+  --tw-gradient-position: to right !important;
+}
+
+.certificate-pdf [class*="gradient"], 
+.certificate-pdf [class*="bg-gradient-to-"] {
+  background-image: linear-gradient(to right, #2563eb, #9333ea) !important;
+  --tw-gradient-from: #eff6ff !important;
+  --tw-gradient-via: #faf5ff !important;
+  --tw-gradient-to: #9333ea !important;
+}
+
+.certificate-pdf .bg-gradient-to-br {
+  background: linear-gradient(135deg, #eff6ff 0%, #faf5ff 50%, #2563eb 100%) !important;
+}
+
+.certificate-pdf .bg-gradient-to-r {
+  background: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to)) !important;
+}
+
+/* Inline overrides for specific problematic elements */
+.certificate-pdf div[class*="bg-gradient"] {
+  background: linear-gradient(to right, #2563eb 0%, #9333ea 100%) !important;
+}
+
+.certificate-pdf svg {
+  fill: currentColor !important;
+  background: none !important;
+}
+
+/* Higher specificity for Tailwind utilities */
+.certificate-pdf .text-blue-600 { color: #2563eb !important; }
+.certificate-pdf .text-blue-900 { color: #1e40af !important; }
+.certificate-pdf .text-purple-600 { color: #9333ea !important; }
+.certificate-pdf .text-purple-900 { color: #581c87 !important; }
+.certificate-pdf .text-gray-600 { color: #4b5563 !important; }
+.certificate-pdf .text-gray-700 { color: #374151 !important; }
+.certificate-pdf .text-gray-900 { color: #111827 !important; }
+.certificate-pdf .bg-blue-50 { background-color: #eff6ff !important; }
+.certificate-pdf .bg-purple-50 { background-color: #faf5ff !important; }
+.certificate-pdf .bg-gray-50 { background-color: #f9fafb !important; }
+.certificate-pdf .border-blue-900 { border-color: #1e3a8a !important; }
+.certificate-pdf .border-gray-200 { border-color: #e5e7eb !important; }
+.certificate-pdf .border-gray-300 { border-color: #d1d5db !important; }
+.certificate-pdf .border-gray-800 { border-color: #1f2937 !important; }
+
+.certificate-pdf * {
+  background-image: none !important;
+  background: inherit !important;
+}
+
+.certificate-pdf [class*="bg-gradient"] {
+  background: linear-gradient(to right, #2563eb, #9333ea) !important;
+}
+
+.certificate-pdf [class*="from-blue-50"],
+.certificate-pdf [class*="to-blue-50"],
+.certificate-pdf [class*="bg-blue-50"] {
+  background-color: #eff6ff !important;
+}
+
+.certificate-pdf [class*="from-purple-50"],
+.certificate-pdf [class*="to-purple-50"],
+.certificate-pdf [class*="bg-purple-50"] {
+  background-color: #faf5ff !important;
+}
+
+.certificate-pdf [class*="bg-gray-50"] {
+  background-color: #f9fafb !important;
+}
+
+.certificate-pdf [class*="text-blue-600"] {
+  color: #2563eb !important;
+}
+
+.certificate-pdf [class*="text-blue-900"],
+.certificate-pdf [class*="text-purple-900"] {
+  color: #1e3a8a !important;
+}
+
+.certificate-pdf [class*="text-gray-600"] {
+  color: #4b5563 !important;
+}
+
+.certificate-pdf [class*="text-gray-700"] {
+  color: #374151 !important;
+}
+
+.certificate-pdf [class*="text-gray-900"] {
+  color: #111827 !important;
+}
+
+.certificate-pdf [class*="border-blue-900"] {
+  border-color: #1e3a8a !important;
+}
+
+.certificate-pdf [class*="border-gray-200"] {
+  border-color: #e5e7eb !important;
+}
+
+.certificate-pdf [class*="border-gray-300"] {
+  border-color: #d1d5db !important;
+}
+
+/* Ensure SVG icons render with solid colors */
+.certificate-pdf svg {
+  fill: currentColor !important;
+}
+

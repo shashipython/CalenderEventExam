@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, BookOpen, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Student } from '../App';
+import { API_CONFIG } from '../config/apiConfig';
 
 interface RegistrationProps {
   onComplete: (student: Student) => void;
@@ -22,8 +23,8 @@ interface StudentOption {
   grade?: string;
 }
 
-const EVENT_TITLES_API_URL = '/api/event_get_event_title';
-const STUDENTS_API_URL = '/api/event_get_students';
+const EVENT_TITLES_API_URL = API_CONFIG.EVENT_TITLES_API_URL;
+const STUDENTS_API_URL = API_CONFIG.STUDENTS_API_URL;
 
 const formatDateForInput = (date: Date) => {
   const year = date.getFullYear();

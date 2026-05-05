@@ -1,6 +1,6 @@
 {
-  "appId": "com.example.app",
-  "appName": "Test",
+  "appId": "com.calendarevent.app",
+  "appName": "CalendarEvent",
   "webDir": "build",
   "npmClient": "npm"
 }

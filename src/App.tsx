@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Bell, BookOpen, CalendarHeart, ChevronRight, LogIn, LogOut, School, User, UserPlus, X } from 'lucide-react';
 import { Toaster } from 'sonner';
+import { API_CONFIG } from './config/apiConfig';
 import { Registration } from './components/Registration';
 import { ExamInterface } from './components/ExamInterface';
 import { Results } from './components/Results';
@@ -311,7 +312,7 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
     setError(null);
     setSuccess(null);
     try {
-      const response = await fetch('https://d8we8zpuoj.execute-api.us-east-1.amazonaws.com/default/event_get_parent_details', {
+      const response = await fetch(API_CONFIG.GET_PARENT_DETAILS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: parseInt(userId) }),
@@ -347,7 +348,7 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
     setError(null);
     setSuccess(null);
     try {
-      const response = await fetch('https://t7fncp3sq7.execute-api.us-east-1.amazonaws.com/default/event_parent_update', {
+      const response = await fetch(API_CONFIG.UPDATE_PARENT_DETAILS_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -746,7 +747,7 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
                   setStudentSuccess(null);
 
                   try {
-                    const response = await fetch('https://hl5klpfv63.execute-api.us-east-1.amazonaws.com/default/event_student_insert', {
+                    const response = await fetch(API_CONFIG.STUDENT_INSERT_URL, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

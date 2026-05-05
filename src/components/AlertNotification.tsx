@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Bell, AlertTriangle, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
+import { API_CONFIG } from '../config/apiConfig';
 
 export interface AlertNotificationProps {
   onBack: () => void;
@@ -21,7 +22,7 @@ interface NotificationResponse {
 
 type SectionType = 'notifications' | 'alerts' | 'announcements';
 
-const API_URL = 'https://o8yxvbako1.execute-api.us-east-1.amazonaws.com/default/event_get_student_notification';
+const API_URL = API_CONFIG.STUDENT_NOTIFICATION_URL;
 
 function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
