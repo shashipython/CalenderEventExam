@@ -13,7 +13,7 @@ interface LoginFormData {
 }
 
 interface LoginFormProps {
-  onSuccess?: (user: { id: string; name: string; email: string }) => void;
+  onSuccess?: (user: { id: string; name: string; email: string; role: string }) => void;
 }
 
 const initialFormData: LoginFormData = {
@@ -124,6 +124,16 @@ export function LoginForm({ onSuccess }: LoginFormProps = {}) {
         result?.data?.email ??
         formData.email.trim();
 
+      const userRole =
+        result?.role ??
+        result?.user?.role ??
+        result?.data?.role ??
+        result?.user_type ??
+        result?.userType ??
+        result?.data?.user_type ??
+        result?.data?.userType ??
+        "parent";
+
       if (!userId) {
         console.error("Login response missing user_id:", result);
         throw new Error("Login failed: No user ID returned from server");
@@ -134,6 +144,7 @@ export function LoginForm({ onSuccess }: LoginFormProps = {}) {
           id: String(userId),
           name: userName,
           email: userEmail,
+          role: String(userRole).toLowerCase(),
         });
       }
     } catch (error) {

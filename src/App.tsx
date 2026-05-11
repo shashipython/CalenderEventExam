@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, BookOpen, CalendarHeart, ChevronRight, LogIn, LogOut, School, User, UserPlus, X } from 'lucide-react';
+import { Bell, BookOpen, CalendarHeart, ChevronRight, FileText, LogIn, LogOut, School, TrendingUp, User, UserPlus, X } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { API_CONFIG } from './config/apiConfig';
 import { Registration } from './components/Registration';
@@ -9,6 +9,9 @@ import { Certificate } from './components/Certificate';
 import { LoginForm } from './components/LoginForm';
 import { SignUpForm } from './components/SignUpForm';
 import { AlertNotification } from './components/AlertNotification';
+import { TeacherDashboard } from './components/TeacherDashboard';
+import ParentPerformanceAnalysis from './components/ParentPerformanceAnalysis';
+import { LeaveRequest } from './components/parent/LeaveRequest';
 
 export interface Student {
   id: string;
@@ -32,13 +35,14 @@ export interface ExamResult {
   completedAt: string;
 }
 
-type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate' | 'notifications';
+type AppState = 'home' | 'registration' | 'exam' | 'results' | 'certificate' | 'notifications' | 'leaveRequest' | 'performanceAnalysis';
 type AuthMode = 'login' | 'signup' | null;
 
 interface AuthUser {
   id: string;
   name: string;
   email: string;
+  role?: string;
 }
 
 interface UserProfile {
@@ -63,6 +67,10 @@ interface UserProfile {
 
 const AUTH_USER_STORAGE_KEY = 'event-story-auth-user';
 
+const getAuthRole = (user: AuthUser | null) => (user?.role || 'parent').toLowerCase();
+const isTeacherUser = (user: AuthUser | null) => getAuthRole(user) === 'teacher';
+const isParentUser = (user: AuthUser | null) => getAuthRole(user) === 'parent';
+
 interface AuthControlsProps {
   user: AuthUser | null;
   mode: AuthMode;
@@ -86,6 +94,8 @@ function AuthNavBar({
   onSignupSuccess,
   onOpenProfile,
 }: AuthControlsProps) {
+  const role = getAuthRole(user);
+
   return (
     <>
       <nav
@@ -142,26 +152,28 @@ function AuthNavBar({
                   }}
                   title={user.email}
                 >
-                  Welcome, {user.name}
+                  Welcome, {user.name} {role === 'teacher' ? '(Teacher)' : '(Parent)'}
                 </div>
-                <button
-                  type="button"
-                  onClick={onOpenProfile}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    borderRadius: 10,
-                    background: '#7c3aed',
-                    color: 'white',
-                    padding: '10px 14px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                  }}
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </button>
+                {role === 'parent' && (
+                  <button
+                    type="button"
+                    onClick={onOpenProfile}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      borderRadius: 10,
+                      background: '#7c3aed',
+                      color: 'white',
+                      padding: '10px 14px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={onLogout}
@@ -805,88 +817,128 @@ function ProfileModal({ isOpen, onClose, userId }: ProfileModalProps) {
 interface LandingPageProps {
   onOpenRegistration: () => void;
   onOpenNotifications: () => void;
+  onOpenLeaveRequest: () => void;
+  onOpenPerformanceAnalysis: () => void;
+  onOpenLogin: () => void;
   user: AuthUser | null;
 }
 
-function LandingPage({ onOpenRegistration, onOpenNotifications, user }: LandingPageProps) {
+function LandingPage({ onOpenRegistration, onOpenNotifications, onOpenLeaveRequest, onOpenPerformanceAnalysis, onOpenLogin, user }: LandingPageProps) {
+  if (user) {
+    return (
+      <div className="min-h-screen px-4 py-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-10 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-600 to-emerald-500 p-8 text-white shadow-2xl">
+            <p className="mb-3 text-base font-semibold text-emerald-100">Welcome, {user.name}</p>
+            <h1 className="mb-4 text-4xl font-bold">Parent Dashboard</h1>
+            <p className="max-w-3xl text-lg leading-relaxed text-blue-50">
+              Access school notifications, register your child for Calendar Event Examination, and manage student services from one parent portal.
+            </p>
+          </div>
+
+          <section className="card-container">
+            <button type="button" onClick={onOpenNotifications} className="card">
+              <div className="card__title">
+                <h3>Alert and Notification</h3>
+              </div>
+              <div className="card__thumbnail">
+                <Bell className="h-10 w-10 text-blue-600" />
+              </div>
+              <div className="card__description">
+                View exam reminders, event schedules, school circulars, and important parent updates.
+              </div>
+              <span className="button">Open</span>
+            </button>
+
+            <button type="button" onClick={onOpenLeaveRequest} className="card">
+              <div className="card__title">
+                <h3>Leave Request</h3>
+              </div>
+              <div className="card__thumbnail">
+                <FileText className="h-10 w-10 text-green-600" />
+              </div>
+              <div className="card__description">
+                Submit sick, personal, emergency, medical, family function, vacation, or other leave requests for mapped students.
+              </div>
+              <span className="button">Open</span>
+            </button>
+
+            <button type="button" onClick={onOpenPerformanceAnalysis} className="card">
+              <div className="card__title">
+                <h3>Performance Analysis</h3>
+              </div>
+              <div className="card__thumbnail">
+                <TrendingUp className="h-10 w-10 text-yellow-600" />
+              </div>
+              <div className="card__description">
+                Review your student’s exam performance and event score trends in one dashboard.
+              </div>
+              <span className="button">Open</span>
+            </button>
+
+            <button type="button" onClick={onOpenRegistration} className="card">
+              <div className="card__title">
+                <h3>Calendar Event Examination Registration</h3>
+              </div>
+              <div className="card__thumbnail">
+                <CalendarHeart className="h-10 w-10 text-purple-600" />
+              </div>
+              <div className="card__description">
+                Register your child for the Calendar Event Examination and continue into the student exam flow.
+              </div>
+              <span className="button">Open</span>
+            </button>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-12 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-600 to-emerald-500 p-8 text-white shadow-2xl">
-          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
-            <School className="h-8 w-8" />
+        <section className="mb-10 rounded-2xl bg-white p-8 shadow-xl">
+          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
+            <School className="h-8 w-8 text-blue-600" />
           </div>
-          {user && (
-            <p className="mb-3 text-base font-semibold text-emerald-100">
-              Welcome, {user.name}
-            </p>
-          )}
-          <p className="mb-3 text-sm font-semibold">WELCOME TO THE SCHOOL PORTAL</p>
-          <h1 className="mb-4 text-4xl font-bold">Bright Future School Main Landing Page</h1>
-          <p className="max-w-4xl text-lg leading-relaxed text-blue-50">
-            A simple school dashboard for announcements, notifications, and student participation in the Event Story registration flow.
+          <p className="mb-3 text-sm font-semibold text-blue-700">BRIGHT FUTURE SCHOOL</p>
+          <h1 className="mb-4 text-4xl font-bold text-gray-900">School Home Page</h1>
+          <p className="max-w-4xl text-lg leading-relaxed text-gray-600">
+            Welcome to the school service portal for Calendar Event Examination, academic communication, parent updates, and student service workflows.
           </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
           <button
             type="button"
-            onClick={onOpenNotifications}
-            className="rounded-2xl border border-blue-200 bg-white p-8 text-left shadow-xl transition-all hover:scale-[1.02] hover:border-blue-300"
+            onClick={onOpenLogin}
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
           >
-            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100">
-              <Bell className="h-7 w-7 text-blue-600" />
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-gray-900">Alert and Notification</h2>
-            <p className="mb-6 text-gray-600">
-              Stay updated with exam reminders, event schedules, holiday circulars, and important school announcements.
-            </p>
-            <div className="space-y-3">
-              <div className="rounded-lg bg-blue-50 p-4">
-                <p className="font-semibold text-blue-900">Monday Assembly</p>
-                <p className="text-sm text-gray-600">All students report by 8:30 AM in full uniform.</p>
-              </div>
-              <div className="rounded-lg bg-yellow-50 p-4">
-                <p className="font-semibold text-gray-900">Exam Notice</p>
-                <p className="text-sm text-gray-600">Event Story registrations are open for primary and high school students.</p>
-              </div>
-              <div className="rounded-lg bg-green-50 p-4">
-                <p className="font-semibold text-green-900">Parent Update</p>
-                <p className="text-sm text-gray-600">Digital progress and attendance updates are available in the portal.</p>
-              </div>
-            </div>
+            <LogIn className="h-5 w-5" />
+            Login to Parent Dashboard
           </button>
+        </section>
 
-          <button
-            type="button"
-            onClick={onOpenRegistration}
-            className="rounded-2xl border border-purple-200 bg-white p-8 text-left shadow-xl transition-all hover:scale-[1.02] hover:border-purple-300"
-          >
-            <div className="mb-6 flex items-center justify-between">
-              <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-purple-100">
-                <CalendarHeart className="h-7 w-7 text-purple-600" />
-              </div>
-              <ChevronRight className="h-6 w-6 text-purple-600" />
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-gray-900">Register for Event Story</h2>
-            <p className="mb-6 text-gray-600">
-              Open the student registration page to join the Event Story activity and continue into the exam flow.
+        <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 auto-rows-min">
+          <div className="flex h-full min-h-[210px] flex-col justify-between rounded-3xl border border-blue-100 bg-white p-5 shadow-sm">
+            <CalendarHeart className="mb-4 h-7 w-7 text-blue-600" />
+            <h2 className="mb-2 text-xl font-bold text-gray-900">Calendar Event Examination</h2>
+            <p className="text-gray-600">
+              Students can participate in structured event-based examinations after parent login and registration.
             </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 rounded-lg bg-purple-50 p-4">
-                <BookOpen className="h-5 w-5 text-purple-600" />
-                <p className="text-sm text-gray-700">Story-based exam experience for students</p>
-              </div>
-              <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
-                <School className="h-5 w-5 text-blue-600" />
-                <p className="text-sm text-gray-700">School name, class, and category registration</p>
-              </div>
-            </div>
-            <div className="mt-6 inline-flex rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-white">
-              Open Registration
-            </div>
-          </button>
-        </div>
+          </div>
+          <div className="flex h-full min-h-[210px] flex-col justify-between rounded-3xl border border-green-100 bg-white p-5 shadow-sm">
+            <Bell className="mb-4 h-7 w-7 text-green-600" />
+            <h2 className="mb-2 text-xl font-bold text-gray-900">School Notifications</h2>
+            <p className="text-gray-600">
+              Parents receive important announcements, reminders, exam notices, and event communication in the portal.
+            </p>
+          </div>
+          <div className="flex h-full min-h-[210px] flex-col justify-between rounded-3xl border border-purple-100 bg-white p-5 shadow-sm">
+            <BookOpen className="mb-4 h-7 w-7 text-purple-600" />
+            <h2 className="mb-2 text-xl font-bold text-gray-900">Other Services</h2>
+            <p className="text-gray-600">
+              The portal supports academic updates, student records, certificate access, and parent-school coordination.
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -930,6 +982,12 @@ export default function App() {
     window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);
   }, [authUser]);
 
+  useEffect(() => {
+    if ((!authUser || !isParentUser(authUser)) && (appState === 'registration' || appState === 'notifications' || appState === 'leaveRequest')) {
+      setAppState('home');
+    }
+  }, [authUser, appState]);
+
   const handleRegistrationComplete = (student: Student) => {
     setCurrentStudent(student);
     setAppState('exam');
@@ -957,11 +1015,13 @@ export default function App() {
   const handleLoginSuccess = (user: AuthUser) => {
     setAuthUser(user);
     setAuthMode(null);
+    setAppState('home');
   };
 
   const handleLogout = () => {
     setAuthUser(null);
     setAuthMode(null);
+    setAppState('home');
   };
 
   return (
@@ -979,7 +1039,7 @@ export default function App() {
         onOpenProfile={() => setShowProfile(true)}
       />
 
-      {showProfile && authUser && (
+      {showProfile && authUser && isParentUser(authUser) && (
         <ProfileModal
           isOpen={showProfile}
           onClose={() => setShowProfile(false)}
@@ -987,15 +1047,26 @@ export default function App() {
         />
       )}
 
-      {appState === 'home' && (
+      {appState === 'home' && isTeacherUser(authUser) && (
+        <TeacherDashboard
+          teacherId={authUser.id}
+          teacherName={authUser.name}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {appState === 'home' && !isTeacherUser(authUser) && (
         <LandingPage
           onOpenRegistration={() => setAppState('registration')}
           onOpenNotifications={() => setAppState('notifications')}
+          onOpenLeaveRequest={() => setAppState('leaveRequest')}
+          onOpenPerformanceAnalysis={() => setAppState('performanceAnalysis')}
+          onOpenLogin={() => setAuthMode('login')}
           user={authUser}
         />
       )}
 
-      {appState === 'registration' && (
+      {appState === 'registration' && authUser && isParentUser(authUser) && (
         <Registration
           onComplete={handleRegistrationComplete}
           onBack={() => setAppState('home')}
@@ -1028,8 +1099,20 @@ export default function App() {
           onStartNew={handleStartNew}
         />
       )}
-      {appState === 'notifications' && authUser && (
+      {appState === 'notifications' && authUser && isParentUser(authUser) && (
         <AlertNotification
+          onBack={() => setAppState('home')}
+          userId={authUser.id}
+        />
+      )}
+      {appState === 'performanceAnalysis' && authUser && isParentUser(authUser) && (
+        <ParentPerformanceAnalysis
+          onBack={() => setAppState('home')}
+          user={authUser}
+        />
+      )}
+      {appState === 'leaveRequest' && authUser && isParentUser(authUser) && (
+        <LeaveRequest
           onBack={() => setAppState('home')}
           userId={authUser.id}
         />

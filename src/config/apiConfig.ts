@@ -28,6 +28,11 @@ export const API_CONFIG = {
   
   // Students API endpoint
   STUDENTS_API_URL: 'https://k0tbcg22d1.execute-api.us-east-1.amazonaws.com/default/event_get_students',
+
+  // Leave Request API endpoint
+  LEAVE_REQUEST_URL: 'https://yuat83p7z4.execute-api.us-east-1.amazonaws.com/default/event_leave_request',
+  FETCH_LEAVE_REQUEST_PARENT_URL: 'https://9knf5otjo0.execute-api.us-east-1.amazonaws.com/default/event_fetch_leave_request_parent',
+  UPDATE_LEAVE_REQUEST_URL: 'https://ky59qkrwle.execute-api.us-east-1.amazonaws.com/default/event_leave_request_update',
   
   // Story Questions API endpoint
   STORY_QUESTIONS_API_URL: 'https://sq4fgnu8q9.execute-api.us-east-1.amazonaws.com/default/event_get_story_quations',

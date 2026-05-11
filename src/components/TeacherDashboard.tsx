@@ -1,105 +1,174 @@
 import { useState } from 'react';
-import { LogOut, Users, BookOpen, CheckSquare, FileText } from 'lucide-react';
-import { ClassManagement } from './teacher/ClassManagement';
-import { AttendanceManagement } from './teacher/AttendanceManagement';
-import { TopicTracking } from './teacher/TopicTracking';
-import { ReportGeneration } from './teacher/ReportGeneration';
+import {
+  ArrowLeft,
+  Bell,
+  BookOpen,
+  CalendarCheck,
+  CheckSquare,
+  ClipboardList,
+  FileCheck,
+  GraduationCap,
+  LogOut,
+} from 'lucide-react';
+import { TeacherAssignmentsForm } from './teacher/TeacherAssignmentsForm';
+import { TeacherAttendanceForm } from './teacher/TeacherAttendanceForm';
+import { TeacherLeaveApprovalForm } from './teacher/TeacherLeaveApprovalForm';
+import { TeacherMarksEntryForm } from './teacher/TeacherMarksEntryForm';
+import { TeacherNotificationsForm } from './teacher/TeacherNotificationsForm';
+import { TeacherSubjectsClassesForm } from './teacher/TeacherSubjectsClassesForm';
 
 interface TeacherDashboardProps {
+  teacherId: string;
+  teacherName?: string;
   onLogout: () => void;
 }
 
-type TeacherView = 'classes' | 'attendance' | 'topics' | 'reports';
+type TeacherService =
+  | 'attendance'
+  | 'leave'
+  | 'assignments'
+  | 'notifications'
+  | 'marks'
+  | 'subjects';
 
-export function TeacherDashboard({ onLogout }: TeacherDashboardProps) {
-  const [currentView, setCurrentView] = useState<TeacherView>('classes');
+const services: Array<{
+  key: TeacherService;
+  title: string;
+  description: string;
+  icon: typeof CheckSquare;
+  color: string;
+}> = [
+  {
+    key: 'attendance',
+    title: 'Attendance',
+    description: 'Mark and submit daily class attendance.',
+    icon: CalendarCheck,
+    color: '#2563eb',
+  },
+  {
+    key: 'leave',
+    title: 'Leave Approval',
+    description: 'Review student leave requests and record decisions.',
+    icon: FileCheck,
+    color: '#16a34a',
+  },
+  {
+    key: 'assignments',
+    title: 'Assignments',
+    description: 'Create assignments with due dates and instructions.',
+    icon: ClipboardList,
+    color: '#7c3aed',
+  },
+  {
+    key: 'notifications',
+    title: 'Notifications',
+    description: 'Send class or parent announcements.',
+    icon: Bell,
+    color: '#ca8a04',
+  },
+  {
+    key: 'marks',
+    title: 'Marks Entry',
+    description: 'Enter exam marks for students and subjects.',
+    icon: CheckSquare,
+    color: '#dc2626',
+  },
+  {
+    key: 'subjects',
+    title: 'Subjects & Classes',
+    description: 'Manage assigned subjects, sections, and schedules.',
+    icon: BookOpen,
+    color: '#0891b2',
+  },
+];
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'classes':
-        return <ClassManagement />;
+export function TeacherDashboard({ teacherId, teacherName, onLogout }: TeacherDashboardProps) {
+  const [activeService, setActiveService] = useState<TeacherService | null>(null);
+
+  const renderServiceForm = () => {
+    switch (activeService) {
       case 'attendance':
-        return <AttendanceManagement />;
-      case 'topics':
-        return <TopicTracking />;
-      case 'reports':
-        return <ReportGeneration />;
+        return <TeacherAttendanceForm teacherId={teacherId} />;
+      case 'leave':
+        return <TeacherLeaveApprovalForm teacherId={teacherId} />;
+      case 'assignments':
+        return <TeacherAssignmentsForm teacherId={teacherId} />;
+      case 'notifications':
+        return <TeacherNotificationsForm teacherId={teacherId} />;
+      case 'marks':
+        return <TeacherMarksEntryForm teacherId={teacherId} />;
+      case 'subjects':
+        return <TeacherSubjectsClassesForm teacherId={teacherId} />;
       default:
-        return <ClassManagement />;
+        return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 sticky top-0 z-10 shadow-md">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl">Teacher Portal</h1>
-            <p className="text-blue-100 text-sm">Manage classes & track progress</p>
+    <div className="min-h-screen px-4 py-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white shadow-2xl">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20">
+                <GraduationCap className="h-7 w-7" />
+              </div>
+              <p className="mb-2 text-sm font-semibold text-blue-100">TEACHER PORTAL</p>
+              <h1 className="text-4xl font-bold">
+                {teacherName ? `Welcome, ${teacherName}` : 'Teacher Dashboard'}
+              </h1>
+              <p className="mt-3 max-w-3xl text-blue-50">
+                Access only teacher services assigned to your account. Teacher ID: {teacherId}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="inline-flex items-center gap-2 rounded-lg bg-white/20 px-4 py-3 font-semibold text-white hover:bg-white/30"
+            >
+              <LogOut className="h-5 w-5" />
+              Logout
+            </button>
           </div>
-          <button
-            onClick={onLogout}
-            className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-md mx-auto p-4">
-        {renderView()}
-      </div>
+        {activeService ? (
+          <div>
+            <button
+              type="button"
+              onClick={() => setActiveService(null)}
+              className="mb-5 inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-4 py-2 font-semibold text-blue-700 shadow-sm hover:bg-blue-50"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Teacher Services
+            </button>
+            {renderServiceForm()}
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {services.map((service) => {
+              const Icon = service.icon;
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
-          <button
-            onClick={() => setCurrentView('classes')}
-            className={`flex flex-col items-center gap-1 py-3 ${
-              currentView === 'classes'
-                ? 'text-blue-600'
-                : 'text-gray-600'
-            }`}
-          >
-            <Users className="w-5 h-5" />
-            <span className="text-xs">Classes</span>
-          </button>
-          <button
-            onClick={() => setCurrentView('attendance')}
-            className={`flex flex-col items-center gap-1 py-3 ${
-              currentView === 'attendance'
-                ? 'text-blue-600'
-                : 'text-gray-600'
-            }`}
-          >
-            <CheckSquare className="w-5 h-5" />
-            <span className="text-xs">Attendance</span>
-          </button>
-          <button
-            onClick={() => setCurrentView('topics')}
-            className={`flex flex-col items-center gap-1 py-3 ${
-              currentView === 'topics'
-                ? 'text-blue-600'
-                : 'text-gray-600'
-            }`}
-          >
-            <BookOpen className="w-5 h-5" />
-            <span className="text-xs">Topics</span>
-          </button>
-          <button
-            onClick={() => setCurrentView('reports')}
-            className={`flex flex-col items-center gap-1 py-3 ${
-              currentView === 'reports'
-                ? 'text-blue-600'
-                : 'text-gray-600'
-            }`}
-          >
-            <FileText className="w-5 h-5" />
-            <span className="text-xs">Reports</span>
-          </button>
-        </div>
+              return (
+                <button
+                  key={service.key}
+                  type="button"
+                  onClick={() => setActiveService(service.key)}
+                  className="rounded-xl border border-gray-200 bg-white p-6 text-left shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div
+                    className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: `${service.color}1A`, color: service.color }}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h2 className="mb-2 text-xl font-bold text-gray-900">{service.title}</h2>
+                  <p className="text-gray-600">{service.description}</p>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
